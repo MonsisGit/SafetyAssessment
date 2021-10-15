@@ -2,22 +2,32 @@
 #define MYVECTOR_H_
 
 #include <string>
+#include <vector>
 
 class PointCloud {
 public:
     // Constructor methods
-    PointCloud(void);
+    PointCloud(int size);
 
     // Destructor method
     ~PointCloud(void);
-    void plot(void);
+    void write(std::string);
     void read(std::string);
+    void fill_randomly(void);
+    void plot(void);
+    std::vector<double> get_x();
+    std::vector<double> get_y();
+    std::vector<double> get_z();
+    int vsize();
 
 
 private:
+    int size;
+    std::vector<double> x;
+    std::vector<double> y;
+    std::vector<double> z;
 
-    unsigned int vsize;
-    unsigned int capacity;
+
 };
 
 #endif /* MYVECTOR_H_ */

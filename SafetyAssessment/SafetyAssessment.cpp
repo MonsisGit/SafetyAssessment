@@ -6,7 +6,11 @@
 
 int main()
 {
-    std::cout << "Hello World!\n";
+     std::string path = "Resource/test.txt";
+    PointCloud pointcloud(100000);
+    pointcloud.fill_randomly();
+    pointcloud.read(path);
+    
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
