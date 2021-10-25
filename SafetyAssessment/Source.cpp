@@ -1,1 +1,4 @@
- #include "Utilities.h"
+#include "Utilities.h"
+
+
+Pointcloud.read();
