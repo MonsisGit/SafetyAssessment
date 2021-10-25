@@ -32,6 +32,32 @@ private:
 
 };
 
+class Img {
+public:
+    // Constructor methods
+    Img(cv::Mat);
+    Img(void);
+    Img(int rows, int cols, int scalar);
+
+    // Destructor method
+    ~Img(void);
+    void write(std::string);
+    void read(std::string);
+    cv::Mat to_Mat(void);
+    void from_Mat(cv::Mat);
+    void show(void);
+    int get_rows(void);
+    int get_cols(void);
+    std::vector<int> get_img();
+
+private:
+    int rows;
+    int cols;
+    std::vector<int> img;
+
+
+};
+
 cv::Mat filter_image(cv::Mat img, int n, int m);
 cv::Mat create_histogramm(cv::Mat image, bool greyscale);
 cv::Mat threshold_image(cv::Mat img, int thresh);

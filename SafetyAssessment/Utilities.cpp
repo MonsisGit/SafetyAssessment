@@ -415,3 +415,110 @@ double* get_filter(std::string filter) {
 
 
 };
+
+std::string type2str(int type) {
+    std::string r;
+
+    uchar depth = type & CV_MAT_DEPTH_MASK;
+    uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+    switch (depth) {
+    case CV_8U:  r = "8U"; break;
+    case CV_8S:  r = "8S"; break;
+    case CV_16U: r = "16U"; break;
+    case CV_16S: r = "16S"; break;
+    case CV_32S: r = "32S"; break;
+    case CV_32F: r = "32F"; break;
+    case CV_64F: r = "64F"; break;
+    default:     r = "User"; break;
+    }
+
+    r += "C";
+    r += (chans + '0');
+
+    return r;
+}
+
+Img::Img(cv::Mat img) {
+    std::string ty = type2str(img.type());
+    if (ty != "8UC1") {
+        std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
+        cvtColor(img, img, cv::COLOR_BGR2GRAY);
+    }
+
+    for (int i = 0; i < img.cols; i++) {
+        for (int j = 0; j < img.rows; j++) {
+            this->img.push_back(img.at<uchar>(j, i));
+        }
+    }
+    this->rows = img.rows;
+    this->cols = img.cols;
+}
+Img::Img(void) {
+    this->rows = 0;
+    this->cols = 0;
+}
+
+Img::Img(int rows, int cols, int scalar) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            this->img.push_back(scalar);
+        }
+    }
+    this->rows = rows;
+    this->cols = cols;
+}
+
+cv::Mat Img::to_Mat(void) {
+    cv::Mat img = cv::Mat(this->rows, this->cols, CV_8UC1, cv::Scalar(0));
+    for (int i = 0; i < this->rows; i++) {
+        for (int j = 0; j < this->cols; j++) {
+            img.at<uchar>(j, i) = this->img[i * cols + j];
+        }
+    }
+    return img;
+}
+
+
+void Img::from_Mat(cv::Mat img) {
+    std::string ty = type2str(img.type());
+    if (ty != "8UC1") {
+        std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
+        cvtColor(img, img, cv::COLOR_BGR2GRAY);
+    }
+
+    for (int i = 0; i < img.cols; i++) {
+        for (int j = 0; j < img.rows; j++) {
+            this->img.push_back(img.at<uchar>(j, i));
+        }
+    }
+    this->rows = img.rows;
+    this->cols = img.cols;
+}
+
+inline bool path_exists(const std::string& name) {
+    struct stat buffer;
+    return (stat(name.c_str(), &buffer) == 0);
+}
+
+void Img::read(std::string path) {
+    if (!path_exists(path)) {
+        std::cerr << path << " does not exist!" << std::endl;
+    }
+    cv::Mat img = cv::imread(path);
+    this->from_Mat(img);
+}
+
+void Img::write(std::string path) {
+    cv::Mat img = this->to_Mat();
+    cv::imwrite(path,img);
+    std::cout << "Wrote Image to: " << path << std::endl;
+}
+
+int Img::get_rows(void) {
+    return this->rows;
+}
+
+int Img::get_cols(void) {
+    return this->cols;
+}
