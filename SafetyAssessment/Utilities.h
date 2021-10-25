@@ -41,3 +41,4 @@ cv::Mat find_correspondence(cv::Mat img_1, cv::Mat img_2);
 double* get_filter(std::string filter);
 
 #endif /* MYVECTOR_H_ */
+
