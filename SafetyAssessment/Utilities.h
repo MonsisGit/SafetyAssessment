@@ -59,11 +59,7 @@ private:
 };
 
 cv::Mat filter_image(cv::Mat img, int n, int m);
-cv::Mat create_histogramm(cv::Mat image, bool greyscale);
-cv::Mat threshold_image(cv::Mat img, int thresh);
-cv::Mat pad_image(cv::Mat img, int pad_width = 1, int pad_val = 0);
-cv::Mat contour_search(cv::Mat img);
-cv::Mat find_correspondence(cv::Mat img_1, cv::Mat img_2);
+cv::Mat pad_image(cv::Mat img, int pad_width, int pad_val);
 double* get_filter(std::string filter);
 
 #endif /* MYVECTOR_H_ */

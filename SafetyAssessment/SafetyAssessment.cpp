@@ -6,7 +6,7 @@
 
 int main()
 {
-     std::string path = "Resource/test.txt";
+    std::string path = "Resource/test.txt";
     PointCloud pointcloud(100000);
     pointcloud.fill_randomly();
     pointcloud.read(path);
