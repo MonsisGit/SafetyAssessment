@@ -37,6 +37,7 @@ public:
     // Constructor methods
     Img(void);
     Img(cv::Mat);
+    Img(std::vector<uchar>, int, int);
 
     // Destructor method
     //~Img(void);
@@ -47,7 +48,11 @@ public:
     void show(void);
     int get_rows(void);
     int get_cols(void);
-    std::vector<uchar> get_img();
+    void conv2d(double filter[], int, int);
+    double* get_filter(std::string);
+    void pad(int, int, int);
+    std::string type2str(int);
+    std::vector<uchar> get();
 
 private:
     int rows;

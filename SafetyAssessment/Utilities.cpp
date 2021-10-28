@@ -104,71 +104,7 @@ void PointCloud::plot(void) {
     //TODO
 }
 
-cv::Mat filter_image(cv::Mat img, int n, int m, double filter[], double scaling=0) {
-    // n: size of filter in horizontal direction
-    // m: size of filter in vertical direction
 
-    cv::Mat img_filtered = img.clone();
-    //float scaling = 1 / pow(n + m + 1, 2);
-
-    for (int i = n; i < img.cols - n; i++) {
-        for (int j = m; j < img.rows - m; j++) {
-            int values = 0;
-            int position = 0;
-            for (int p = i - n; p < i + 2 * n; p++) {
-                for (int k = j - m; k < j + 2 * m; j++) {
-                    values += filter[position] * img.at<uchar>(k, p);
-                    position++;
-                }
-            }
-            img_filtered.at<uchar>(j, i) = scaling * values;
-        }
-    }
-    return img_filtered;
-}
-
-
-std::string type2str(int type) {
-    std::string r;
-
-    uchar depth = type & CV_MAT_DEPTH_MASK;
-    uchar chans = 1 + (type >> CV_CN_SHIFT);
-
-    switch (depth) {
-    case CV_8U:  r = "8U"; break;
-    case CV_8S:  r = "8S"; break;
-    case CV_16U: r = "16U"; break;
-    case CV_16S: r = "16S"; break;
-    case CV_32S: r = "32S"; break;
-    case CV_32F: r = "32F"; break;
-    case CV_64F: r = "64F"; break;
-    default:     r = "User"; break;
-    }
-
-    r += "C";
-    r += (chans + '0');
-
-    return r;
-}
-
-cv::Mat pad_image(cv::Mat img, int pad_width = 1, int pad_val = 0) {
-
-    std::string ty = type2str(img.type());
-    if (ty != "8UC1") {
-        std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
-        cvtColor(img, img, cv::COLOR_BGR2GRAY);
-
-    }
-    cv::Mat img_padded = cv::Mat(img.rows + pad_width * 2, img.cols + pad_width * 2,
-        img.type(), cv::Scalar(pad_val));
-    for (int i = pad_width; i < img.cols + pad_width; i++) {
-        for (int j = pad_width; j < img.rows + pad_width; j++) {
-            img_padded.at<uchar>(j, i) = img.at<uchar>(j - pad_width, i - pad_width);
-        }
-    }
-    //imshow("pad", img_padded);
-    return img_padded;
-}
 
 cv::Mat contour_search(cv::Mat img) {
     unsigned char* pic = new unsigned char[img.rows * img.cols];
@@ -234,61 +170,10 @@ cv::Mat contour_search(cv::Mat img) {
     return c_img;
 }
 
-int add_filter(cv::Mat img, int i, int j, int n, int m) {
-    float val = 0;
-    for (int p = i - n; p <= i + n; p++) {
-        for (int k = j - m; k <= j + m; k++) {
-            val += img.at<uchar>(k, p);
-        }
-    }
-    return val;
-}
-
-
-double* get_filter(std::string filter) {
-    //Laplace-Gaussian Filter
-    if (filter == "laplace-gaussian") {
-        double f[] = { 0,		0,		1,		2,		2,		2,		1,		0,		0,
-                            0,		1,		5,		10,		12,		10,		5,		1,		0,
-                            1,		5,		15,		19,		16,		19,		15,		5,		1,
-                            2,		10,		19,	   -19,	   -64,	   -19,		19,		10,		2,
-                            2,		12,		16,	   -64,	   -148,   -64,		16,		12,		2,
-                            2,		10,		19,	   -19,	   -64,	   -19,		19,		10,		2,
-                            1,		5,		15,		19,		16,		19,		15,		5,		1,
-                            0,		1,		5,		10,		12,		10,		5,		1,		0,
-                            0,		0,		1,		2,		2,		2,		1,		0,		0 };
-        return f;
-    }
-    //Laplace Filter
-    else if (filter == "laplace") {
-        double f[] = { 0,		1,		0,
-                    1,	   -4,		1,
-                    0,		1,		0 };
-        return f;
-    }
-    //horizontal gradient filter, (sobel filter)
-    else if (filter == "h_gradient") {
-        double f[] = { 1,		0,		-1,
-                    2,	   0,	-2,
-                    1,		0,		-1 };
-        return f;
-    }
-
-     //vertical gradient filter, (sobel filter)
-    else if (filter == "v_gradient") {
-        double f[] = { 1,		2,		1,
-                    0,	   0,	0,
-                    1,		-2,		-1 };
-        return f;
-
-    }
-
-
-};
 
 
 Img::Img(cv::Mat image) {
-    std::string ty = type2str(image.type());
+    std::string ty = this->type2str(image.type());
     if (ty != "8UC1") {
         std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
         cvtColor(image, image, cv::COLOR_BGR2GRAY);
@@ -311,9 +196,16 @@ Img::Img(void) {
     return;
 }
 
+Img::Img(std::vector<uchar> vec, int rows=0, int cols=0) {
+    this->img = vec;
+    this->rows = rows;
+    this->cols = cols;
+    return;
+}
+
 void Img::show(void) {
-    cv::Mat img = this->to_Mat();
-    cv::imshow("Image", img);
+    cv::Mat image = this->to_Mat();
+    cv::imshow("Image", image);
     cv::waitKey(0);
 }
 
@@ -329,7 +221,7 @@ cv::Mat Img::to_Mat(void) {
 
 
 void Img::from_Mat(cv::Mat image) {
-    std::string ty = type2str(image.type());
+    std::string ty = this->type2str(image.type());
     if (ty != "8UC1") {
         std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
         cvtColor(image, image, cv::COLOR_BGR2GRAY);
@@ -369,4 +261,107 @@ int Img::get_rows(void) {
 
 int Img::get_cols(void) {
     return this->cols;
+}
+
+std::vector<uchar> Img::get() {
+    return this->img;
+};
+
+void Img::conv2d(double filter[] ,int n, int m) {
+    cv::Mat img = this->to_Mat();
+    cv::Mat img_filtered = img.clone();
+    //float scaling = 1 / pow(n + m + 1, 2);
+
+    for (int i = n; i < img.cols - n; i++) {
+        for (int j = m; j < img.rows - m; j++) {
+            int values = 0;
+            int position = 0;
+            for (int p = i - n; p < i + 2 * n; p++) {
+                for (int k = j - m; k < j + 2 * m; j++) {
+                    values += filter[position] * img.at<uchar>(k, p);
+                    position++;
+                }
+            }
+            img_filtered.at<uchar>(j, i) = values;
+        }
+    }
+    this->from_Mat(img_filtered);
+};
+
+double* Img::get_filter(std::string filter) {
+    //Laplace-Gaussian Filter
+    if (filter == "laplace-gaussian") {
+        double f[] = { 0,		0,		1,		2,		2,		2,		1,		0,		0,
+                            0,		1,		5,		10,		12,		10,		5,		1,		0,
+                            1,		5,		15,		19,		16,		19,		15,		5,		1,
+                            2,		10,		19,	   -19,	   -64,	   -19,		19,		10,		2,
+                            2,		12,		16,	   -64,	   -148,   -64,		16,		12,		2,
+                            2,		10,		19,	   -19,	   -64,	   -19,		19,		10,		2,
+                            1,		5,		15,		19,		16,		19,		15,		5,		1,
+                            0,		1,		5,		10,		12,		10,		5,		1,		0,
+                            0,		0,		1,		2,		2,		2,		1,		0,		0 };
+        return f;
+    }
+    //Laplace Filter
+    else if (filter == "laplace") {
+        double f[] = { 0,		1,		0,
+                    1,	   -4,		1,
+                    0,		1,		0 };
+        return f;
+    }
+    //horizontal gradient filter, (sobel filter)
+    else if (filter == "h_gradient") {
+        double f[] = { 1,		0,		-1,
+                    2,	   0,	-2,
+                    1,		0,		-1 };
+        return f;
+    }
+
+    //vertical gradient filter, (sobel filter)
+    else if (filter == "v_gradient") {
+        double f[] = { 1,		2,		1,
+                    0,	   0,	0,
+                    1,		-2,		-1 };
+        return f;
+
+    }
+    else {
+        std::cerr << "No such filter" << std::endl;
+    }
+};
+
+void Img::pad(int pad_width, int pad_height, int pad_value) {
+    cv::Mat img = to_Mat();
+    cv::Mat img_padded = cv::Mat(img.rows + pad_width * 2, img.cols + pad_width * 2,
+        img.type(), cv::Scalar(pad_value));
+    for (int i = pad_width; i < img.cols + pad_width; i++) {
+        for (int j = pad_width; j < img.rows + pad_width; j++) {
+            img_padded.at<uchar>(j, i) = img.at<uchar>(j - pad_width, i - pad_width);
+        }
+    }
+    this->from_Mat(img_padded);
+};
+
+
+std::string Img::type2str(int type) {
+    std::string r;
+
+    uchar depth = type & CV_MAT_DEPTH_MASK;
+    uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+    switch (depth) {
+    case CV_8U:  r = "8U"; break;
+    case CV_8S:  r = "8S"; break;
+    case CV_16U: r = "16U"; break;
+    case CV_16S: r = "16S"; break;
+    case CV_32S: r = "32S"; break;
+    case CV_32F: r = "32F"; break;
+    case CV_64F: r = "64F"; break;
+    default:     r = "User"; break;
+    }
+
+    r += "C";
+    r += (chans + '0');
+
+    return r;
 }

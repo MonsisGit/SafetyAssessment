@@ -14,8 +14,12 @@ int main()
 
     Img img;
     img.read("Resource/test.png");
-    img.show();
-    img.write("Resource/test_2.png");
+    img.pad(20, 20, 100);
+    std::vector<uchar> vec_img = img.get();
+
+    Img img2(vec_img, img.get_rows(), img.get_cols());
+    img2.show();
+    img2.write("Resource/test_2.png");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
