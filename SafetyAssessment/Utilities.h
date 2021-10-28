@@ -35,12 +35,11 @@ private:
 class Img {
 public:
     // Constructor methods
-    Img(cv::Mat);
     Img(void);
-    Img(int rows, int cols, int scalar);
+    Img(cv::Mat);
 
     // Destructor method
-    ~Img(void);
+    //~Img(void);
     void write(std::string);
     void read(std::string);
     cv::Mat to_Mat(void);
@@ -48,12 +47,12 @@ public:
     void show(void);
     int get_rows(void);
     int get_cols(void);
-    std::vector<int> get_img();
+    std::vector<uchar> get_img();
 
 private:
     int rows;
     int cols;
-    std::vector<int> img;
+    std::vector<uchar> img;
 
 
 };

@@ -287,61 +287,61 @@ double* get_filter(std::string filter) {
 };
 
 
-Img::Img(cv::Mat img) {
-    std::string ty = type2str(img.type());
+Img::Img(cv::Mat image) {
+    std::string ty = type2str(image.type());
     if (ty != "8UC1") {
         std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
-        cvtColor(img, img, cv::COLOR_BGR2GRAY);
+        cvtColor(image, image, cv::COLOR_BGR2GRAY);
     }
 
-    for (int i = 0; i < img.cols; i++) {
-        for (int j = 0; j < img.rows; j++) {
-            this->img.push_back(img.at<uchar>(j, i));
-        }
+    if (image.isContinuous()) {
+        this->img.assign(image.data, image.data + image.total() * image.channels());
     }
-    this->rows = img.rows;
-    this->cols = img.cols;
+    else {
+        std::cerr << "Matrix not continuous!";
+    }
+    this->rows = image.rows;
+    this->cols = image.cols;
+    return;
 }
+
 Img::Img(void) {
     this->rows = 0;
     this->cols = 0;
+    return;
 }
 
-Img::Img(int rows, int cols, int scalar) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            this->img.push_back(scalar);
-        }
-    }
-    this->rows = rows;
-    this->cols = cols;
+void Img::show(void) {
+    cv::Mat img = this->to_Mat();
+    cv::imshow("Image", img);
+    cv::waitKey(0);
 }
 
 cv::Mat Img::to_Mat(void) {
     cv::Mat img = cv::Mat(this->rows, this->cols, CV_8UC1, cv::Scalar(0));
-    for (int i = 0; i < this->rows; i++) {
-        for (int j = 0; j < this->cols; j++) {
-            img.at<uchar>(j, i) = this->img[i * cols + j];
+    for (int i = 0; i < this->cols; i++) {
+        for (int j = 0; j < this->rows; j++) {
+            img.at<uchar>(j, i) = this->img[j * cols + i];
         }
     }
     return img;
 }
 
 
-void Img::from_Mat(cv::Mat img) {
-    std::string ty = type2str(img.type());
+void Img::from_Mat(cv::Mat image) {
+    std::string ty = type2str(image.type());
     if (ty != "8UC1") {
         std::cout << "Converting img to greyscale of type 8UC1, was of type: " << ty.c_str() << " before" << std::endl;
-        cvtColor(img, img, cv::COLOR_BGR2GRAY);
+        cvtColor(image, image, cv::COLOR_BGR2GRAY);
     }
-
-    for (int i = 0; i < img.cols; i++) {
-        for (int j = 0; j < img.rows; j++) {
-            this->img.push_back(img.at<uchar>(j, i));
-        }
+    if (image.isContinuous()) {
+        this->img.assign(image.data, image.data + image.total() * image.channels());
     }
-    this->rows = img.rows;
-    this->cols = img.cols;
+    else {
+        std::cerr << "Matrix not continuous!";
+    }
+    this->rows = image.rows;
+    this->cols = image.cols;
 }
 
 inline bool path_exists(const std::string& name) {
