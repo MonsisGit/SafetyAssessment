@@ -1,16 +1,25 @@
 // SafetyAssessment.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
+#include<opencv2/opencv.hpp> 
+#include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include "Utilities.h"
 
 int main()
 {
-     std::string path = "Resource/test.txt";
+    /*std::string path = "Resource/test.txt";
     PointCloud pointcloud(100000);
     pointcloud.fill_randomly();
-    pointcloud.read(path);
-    
+    pointcloud.read(path);*/
+
+    Img img;
+    img.read("Resource/test.png");
+    img.pad(20, 20, 100);
+    std::vector<uchar> vec_img = img.get();
+
+    Img img2(vec_img, img.get_rows(), img.get_cols());
+    img2.show();
+    img2.write("Resource/test_2.png");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
