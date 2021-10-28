@@ -35,12 +35,12 @@ private:
 class Img {
 public:
     // Constructor methods
-    Img(cv::Mat);
     Img(void);
-    Img(int rows, int cols, int scalar);
+    Img(cv::Mat);
+    Img(std::vector<uchar>, int, int);
 
     // Destructor method
-    ~Img(void);
+    //~Img(void);
     void write(std::string);
     void read(std::string);
     cv::Mat to_Mat(void);
@@ -48,22 +48,22 @@ public:
     void show(void);
     int get_rows(void);
     int get_cols(void);
-    std::vector<int> get_img();
+    void conv2d(double filter[], int, int);
+    double* get_filter(std::string);
+    void pad(int, int, int);
+    std::string type2str(int);
+    std::vector<uchar> get();
 
 private:
     int rows;
     int cols;
-    std::vector<int> img;
+    std::vector<uchar> img;
 
 
 };
 
 cv::Mat filter_image(cv::Mat img, int n, int m);
-cv::Mat create_histogramm(cv::Mat image, bool greyscale);
-cv::Mat threshold_image(cv::Mat img, int thresh);
-cv::Mat pad_image(cv::Mat img, int pad_width = 1, int pad_val = 0);
-cv::Mat contour_search(cv::Mat img);
-cv::Mat find_correspondence(cv::Mat img_1, cv::Mat img_2);
+cv::Mat pad_image(cv::Mat img, int pad_width, int pad_val);
 double* get_filter(std::string filter);
 
 #endif /* MYVECTOR_H_ */
